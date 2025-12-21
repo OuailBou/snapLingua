@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#FFFFFF"
     tools:context=".MainActivity">
 
     <!-- Top Bar -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/topBar"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="64dp"
-        android:background="@color/purple_header"
+        android:background="#6200EE"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
@@ -22,33 +27,34 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="tongi"
-            android:textColor="@color/white"
+            android:textColor="#FFFFFF"
             android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <ImageView
             android:id="@+id/btnSettings"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_marginEnd="16dp"
             android:contentDescription="Settings"
-            android:src="@drawable/ic_settings"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:src="@android:drawable/ic_menu_manage" />
+    </LinearLayout>
 
     <!-- Language Selectors -->
     <LinearLayout
         android:id="@+id/languageSelectors"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp"
         android:gravity="center_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/topBar">
 
         <LinearLayout
@@ -56,59 +62,68 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/entrada"
-                android:textColor="@color/text_gray"
+                android:textColor="#757575"
                 android:textSize="12sp"
                 android:layout_gravity="center_horizontal"/>
+
             <Spinner
                 android:id="@+id/spinnerInput"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:entries="@array/languages"/>
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
         <ImageView
             android:id="@+id/btnSwap"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:src="@drawable/ic_swap" />
+            android:layout_width="32dp"
+            android:layout_height="25dp"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="12dp"
+            android:contentDescription="Swap languages"
+            android:src="@drawable/ic_change" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/salida"
-                android:textColor="@color/text_gray"
+                android:textColor="#757575"
                 android:textSize="12sp"
                 android:layout_gravity="center_horizontal"/>
+
             <Spinner
                 android:id="@+id/spinnerOutput"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:entries="@array/languages"/>
+                android:layout_height="wrap_content"/>
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Divider -->
     <View
         android:id="@+id/divider"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="1dp"
-        android:background="@color/card_border"
+        android:background="#E0E0E0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/languageSelectors" />
 
+    <!-- Main Content Area -->
     <ScrollView
-        android:layout_width="match_parent"
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/divider"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigation">
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/divider">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -116,179 +131,243 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Input Card -->
-            <com.google.android.material.card.MaterialCardView
+            <!-- Input Area -->
+            <LinearLayout
+                android:id="@+id/inputCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/card_border"
-                app:strokeWidth="1dp">
+                android:orientation="vertical"
+                android:background="#FFFFFF"
+                android:padding="16dp"
+                android:elevation="2dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
                     <EditText
                         android:id="@+id/etInput"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:background="@null"
+                        android:layout_weight="1"
                         android:hint="@string/placeholder_input"
-                        android:textColor="@color/text_gray"
+                        android:textColor="#757575"
                         android:textSize="24sp"
-                        app:layout_constraintEnd_toStartOf="@id/btnClear"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:background="@null"
+                        android:padding="8dp"
+                        android:inputType="textMultiLine|textCapSentences"
+                        android:imeOptions="actionDone"
+                        android:maxLines="10"
+                        android:minLines="3"
+                        android:gravity="top|start"
+                        android:scrollHorizontally="false"
+                        android:fontFamily="sans-serif"
+                        android:letterSpacing="0.03"
+                        android:includeFontPadding="false"
+                        />
+
 
                     <ImageView
                         android:id="@+id/btnClear"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_close"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <LinearLayout
-                android:id="@+id/btnPaste"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="8dp"
-                android:clickable="true"
-                android:focusable="true">
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_paste" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="@string/pegar"
-                    android:textColor="@color/text_gray"
-                    android:textSize="14sp" />
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="Clear text"
+                        android:src="@android:drawable/ic_delete"
+                        android:padding="4dp"/>
+                </LinearLayout>
             </LinearLayout>
 
-            <!-- Output Card -->
-            <com.google.android.material.card.MaterialCardView
+            <!-- Output Area -->
+            <LinearLayout
+                android:id="@+id/outputCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/card_border"
-                app:strokeWidth="1dp">
+                android:orientation="vertical"
+                android:background="#FFFFFF"
+                android:padding="16dp"
+                android:elevation="2dp"
+                android:layout_marginTop="16dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
                     <TextView
                         android:id="@+id/tvOutput"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:text="@string/placeholder_output"
-                        android:textColor="@color/black"
+                        android:textColor="#000000"
                         android:textSize="24sp"
-                        app:layout_constraintEnd_toStartOf="@id/btnVolume"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:padding="8dp"/>
+
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="@id/tvOutput"
+                        app:layout_constraintEnd_toEndOf="@id/tvOutput"
+                        app:layout_constraintStart_toStartOf="@id/tvOutput"
+                        app:layout_constraintTop_toTopOf="@id/tvOutput" />
 
                     <ImageView
                         android:id="@+id/btnVolume"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_volume"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="Speak translation"
+                        android:src="@android:drawable/ic_lock_silent_mode_off"
+                        android:padding="4dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end"
+                    android:layout_marginTop="16dp">
+
+                    <ImageView
+                        android:id="@+id/btnCopy"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="12dp"
+                        android:contentDescription="Copy"
+                        android:src="@drawable/ic_copy"
+                        android:padding="4dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"/>
 
                     <ImageView
                         android:id="@+id/btnStar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:src="@drawable/ic_star"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/btnVolume" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="Add to favorites"
+                        android:src="@android:drawable/btn_star"
+                        android:padding="4dp"/>
 
-            <LinearLayout
-                android:id="@+id/btnCopy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="8dp"
-                android:clickable="true"
-                android:focusable="true">
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_copy" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="@string/copiar"
-                    android:textColor="@color/text_gray"
-                    android:textSize="14sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <!-- Quick Translations -->
             <TextView
+                android:id="@+id/tvQuickTranslations"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="@string/traducciones_rapidas"
-                android:textColor="@color/black"
+                android:textColor="#000000"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroup"
+            <!-- Chips -->
+            <LinearLayout
+                android:id="@+id/chipContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_marginTop="8dp">
-                <com.google.android.material.chip.Chip
+
+                <Button
+                    android:id="@+id/chip1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hello"
-                    style="@style/Widget.Material3.Chip.Suggestion" />
-                <com.google.android.material.chip.Chip
+                    android:text="Saludo"
+                    android:layout_marginEnd="8dp"
+                    style="?android:attr/buttonBarButtonStyle"/>
+
+                <Button
+                    android:id="@+id/chip2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="What's up"
-                    style="@style/Widget.Material3.Chip.Suggestion" />
-                <com.google.android.material.chip.Chip
+                    android:text="Pregunta"
+                    android:layout_marginEnd="8dp"
+                    style="?android:attr/buttonBarButtonStyle"/>
+
+                <Button
+                    android:id="@+id/chip3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="How can I.."
-                    style="@style/Widget.Material3.Chip.Suggestion" />
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Thank you"
-                    style="@style/Widget.Material3.Chip.Suggestion" />
-            </com.google.android.material.chip.ChipGroup>
+                    android:text="Agradecimiento"
+                    style="?android:attr/buttonBarButtonStyle"/>
+
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
 
     <!-- Bottom Navigation -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <LinearLayout
         android:id="@+id/bottomNavigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:layout_width="0dp"
+        android:layout_height="72dp"
+        android:background="#FFFFFF"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/nav_texto"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/texto"
+            app:icon="@drawable/ic_keyboard"
+            app:iconGravity="top"
+            app:iconSize="24dp"
+            app:iconPadding="4dp"
+            android:textColor="#424242"
+            app:iconTint="#424242"
+            android:textSize="11sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/nav_camara"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/camara"
+            app:icon="@drawable/ic_camera"
+            app:iconGravity="top"
+            app:iconSize="24dp"
+            app:iconPadding="4dp"
+            android:textColor="#424242"
+            app:iconTint="#424242"
+            android:textSize="11sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/nav_audio"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/audio"
+            app:icon="@drawable/ic_microphone"
+            app:iconGravity="top"
+            app:iconSize="24dp"
+            app:iconPadding="4dp"
+            android:textColor="#424242"
+            app:iconTint="#424242"
+            android:textSize="11sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
