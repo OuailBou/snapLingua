@@ -2,36 +2,27 @@ package com.example.snap.data.entities;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import androidx.room.ColumnInfo;
 
-@Entity(tableName = "vocabulary_items")
-public class VocabularyItem {
+@Entity(tableName = "favorites")
+public class Favorite {
     @PrimaryKey(autoGenerate = true)
     private long id = 0;
 
     private String userId;
     private String originalText;
     private String translatedText;
-    private String languagePair;
+    private String sourceLang;
+    private String targetLang;
     private long addedDate;
+    private boolean isExpression;
 
-    @ColumnInfo(defaultValue = "0")
-    private int reviewCount = 0;
-
-    @ColumnInfo(defaultValue = "0")
-    private int masteryLevel = 0; // 0-100
-
-    private String tags;
-
-    // Constructores
-    public VocabularyItem() {}
-
-    public VocabularyItem(String userId, String originalText, String translatedText,
-                          String languagePair) {
+    public Favorite(String userId, String originalText, String translatedText, String sourceLang, String targetLang, boolean isExpression) {
         this.userId = userId;
         this.originalText = originalText;
         this.translatedText = translatedText;
-        this.languagePair = languagePair;
+        this.sourceLang = sourceLang;
+        this.targetLang = targetLang;
+        this.isExpression = isExpression;
         this.addedDate = System.currentTimeMillis();
     }
 
@@ -48,18 +39,15 @@ public class VocabularyItem {
     public String getTranslatedText() { return translatedText; }
     public void setTranslatedText(String translatedText) { this.translatedText = translatedText; }
 
-    public String getLanguagePair() { return languagePair; }
-    public void setLanguagePair(String languagePair) { this.languagePair = languagePair; }
+    public String getSourceLang() { return sourceLang; }
+    public void setSourceLang(String sourceLang) { this.sourceLang = sourceLang; }
+
+    public String getTargetLang() { return targetLang; }
+    public void setTargetLang(String targetLang) { this.targetLang = targetLang; }
 
     public long getAddedDate() { return addedDate; }
     public void setAddedDate(long addedDate) { this.addedDate = addedDate; }
 
-    public int getReviewCount() { return reviewCount; }
-    public void setReviewCount(int reviewCount) { this.reviewCount = reviewCount; }
-
-    public int getMasteryLevel() { return masteryLevel; }
-    public void setMasteryLevel(int masteryLevel) { this.masteryLevel = masteryLevel; }
-
-    public String getTags() { return tags; }
-    public void setTags(String tags) { this.tags = tags; }
+    public boolean isExpression() { return isExpression; }
+    void setExpression(boolean expression) { isExpression = expression; }
 }

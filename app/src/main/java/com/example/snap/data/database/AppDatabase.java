@@ -5,23 +5,24 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
+import com.example.snap.data.dao.FavoriteDao;
 import com.example.snap.data.dao.TranslationHistoryDao;
 import com.example.snap.data.dao.UserDao;
-import com.example.snap.data.dao.VocabularyDao;
+import com.example.snap.data.entities.Favorite;
 import com.example.snap.data.entities.TranslationHistory;
 import com.example.snap.data.entities.User;
-import com.example.snap.data.entities.VocabularyItem;
 
 @Database(
-        entities = {User.class, TranslationHistory.class, VocabularyItem.class},
-        version = 1,
+        entities = {User.class, TranslationHistory.class, Favorite.class},
+        // CAMBIO: Versión 3 para aplicar los cambios de User (password/email único)
+        version = 3,
         exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract UserDao userDao();
     public abstract TranslationHistoryDao translationHistoryDao();
-    public abstract VocabularyDao vocabularyDao();
+    public abstract FavoriteDao favoriteDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -34,6 +35,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                     AppDatabase.class,
                                     "translation_db"
                             )
+                            // Esto evitará el crash borrando los datos viejos
                             .fallbackToDestructiveMigration()
                             .build();
                 }

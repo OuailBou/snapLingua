@@ -1,20 +1,19 @@
 package com.example.snap;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import android.content.ClipboardManager;
-import android.content.ClipData;
-import android.content.Context;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -24,52 +23,36 @@ import com.example.snap.presentation.viewmodel.TranslationViewModel;
 public class MainActivity extends AppCompatActivity {
 
     // Vistas
-    private Spinner spinnerInput;
-    private Spinner spinnerOutput;
+    private Spinner spinnerInput, spinnerOutput;
     private EditText etInput;
     private TextView tvOutput;
-    private ImageView btnClear;
-    private ImageView btnSwap;
-    private ImageView btnVolume;
-    private ImageView btnStar;
-
-    private ImageView btnCopy;
-    private Button chip1;
-    private Button chip2;
-    private Button chip3;
+    private ImageView btnClear, btnSwap, btnVolume, btnStar, btnCopy;
+    private Button chip1, chip2, chip3;
     private ProgressBar progressBar;
 
     private TranslationViewModel viewModel;
+    private String currentUserId; // Almacena el usuario logueado o null
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // 1. Recuperar el ID del usuario enviado desde Login (puede ser null si es invitado)
+        currentUserId = getIntent().getStringExtra("USER_ID");
+
+        // 2. Inicializar componentes
         initializeViews();
         setupSpinners();
 
-
+        // 3. Inicializar ViewModel
         viewModel = new ViewModelProvider(this).get(TranslationViewModel.class);
 
+        // 4. Configurar flujos de datos
         setupObservers();
-
         setupListeners();
 
-        Toast.makeText(this, "Traductor listo con ViewModel", Toast.LENGTH_SHORT).show();
-    }
-
-    private void setupObservers() {
-        viewModel.getCurrentTranslation().observe(this, translatedText -> {
-            hideProgress();
-            if (translatedText != null) {
-                tvOutput.setText(translatedText);
-
-                // Animación de entrada de texto
-                tvOutput.setAlpha(0);
-                tvOutput.animate().alpha(1).setDuration(500).start();
-            }
-        });
+        Toast.makeText(this, "Traductor listo", Toast.LENGTH_SHORT).show();
     }
 
     private void initializeViews() {
@@ -105,25 +88,37 @@ public class MainActivity extends AppCompatActivity {
         spinnerOutput.setSelection(1); // Inglés
     }
 
+    private void setupObservers() {
+        viewModel.getCurrentTranslation().observe(this, translatedText -> {
+            hideProgress();
+            if (translatedText != null) {
+                tvOutput.setText(translatedText);
+                // Animación de entrada
+                tvOutput.setAlpha(0);
+                tvOutput.animate().alpha(1).setDuration(500).start();
+            }
+        });
+    }
+
     private void setupListeners() {
-        // Escuchar cambios en el idioma de entrada para actualizar los textos de los chips
+        // Listener para actualizar chips según idioma seleccionado
         spinnerInput.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
                 updateQuickTranslationChips();
             }
-
             @Override
-            public void onNothingSelected(android.widget.AdapterView<?> parent) {
-            }
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
         });
 
+        // Botón Limpiar
         btnClear.setOnClickListener(v -> {
             etInput.setText("");
             tvOutput.setText("La traducción aparecerá aquí");
             hideProgress();
         });
 
+        // Botón Intercambiar idiomas (Swap)
         btnSwap.setOnClickListener(v -> {
             int inputPos = spinnerInput.getSelectedItemPosition();
             int outputPos = spinnerOutput.getSelectedItemPosition();
@@ -136,27 +131,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Botón Copiar al portapapeles
         btnCopy.setOnClickListener(v -> {
             String textToCopy = tvOutput.getText().toString();
-            if (!textToCopy.isEmpty() && !textToCopy.equals("Traducción aparecerá aquí")
+            if (!textToCopy.isEmpty() && !textToCopy.equals("La traducción aparecerá aquí")
                     && !textToCopy.equals("Traduciendo...")) {
 
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("Traducción", textToCopy);
                 clipboard.setPrimaryClip(clip);
-
-                Toast.makeText(this, "Texto copiado al portapapeles", Toast.LENGTH_SHORT).show();
-            }
-            else {
+                Toast.makeText(this, "Texto copiado", Toast.LENGTH_SHORT).show();
+            } else {
                 Toast.makeText(this, "No hay nada para copiar", Toast.LENGTH_SHORT).show();
             }
         });
 
+        // Enter en el teclado
         etInput.setOnEditorActionListener((v, actionId, event) -> {
             performTranslation();
             return true;
         });
 
+        // Listeners para los Chips
         View.OnClickListener chipListener = v -> {
             Button b = (Button) v;
             etInput.setText(b.getText().toString());
@@ -166,10 +162,28 @@ public class MainActivity extends AppCompatActivity {
         chip2.setOnClickListener(chipListener);
         chip3.setOnClickListener(chipListener);
 
+        // --- NUEVO: Lógica de navegación del botón Usuario ---
+        View btnNavUsuario = findViewById(R.id.nav_usuario);
+        if (btnNavUsuario != null) {
+            btnNavUsuario.setOnClickListener(v -> {
+                if (currentUserId != null && !currentUserId.trim().isEmpty()) {
+                    // SI HAY USUARIO: Ir a Estadísticas (Comentado porque no existe aún)
+                    /*
+                    Intent intent = new Intent(MainActivity.this, StatisticsActivity.class);
+                    intent.putExtra("USER_ID", currentUserId);
+                    startActivity(intent);
+                    */
+                    Toast.makeText(this, "Usuario activo: " + currentUserId, Toast.LENGTH_SHORT).show();
+                } else {
+                    // NO HAY USUARIO: Ir a Login
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
 
         updateQuickTranslationChips();
     }
-
 
     private void performTranslation() {
         String text = etInput.getText().toString().trim();
@@ -185,7 +199,8 @@ public class MainActivity extends AppCompatActivity {
         String sourceLang = getLanguageCode(spinnerInput.getSelectedItemPosition());
         String targetLang = getLanguageCode(spinnerOutput.getSelectedItemPosition());
 
-        viewModel.translateText(text, sourceLang, targetLang);
+        // LLAMADA ACTUALIZADA: Se incluye el currentUserId para el historial
+        viewModel.translateText(text, sourceLang, targetLang, currentUserId);
     }
 
     private String getLanguageCode(int position) {
@@ -202,33 +217,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateQuickTranslationChips() {
         String langCode = getLanguageCode(spinnerInput.getSelectedItemPosition());
-
         switch (langCode) {
             case "es":
-                chip1.setText("Hola");
-                chip2.setText("¿Cómo estás?");
-                chip3.setText("Gracias");
+                chip1.setText("Hola"); chip2.setText("¿Cómo estás?"); chip3.setText("Gracias");
                 break;
             case "en":
-                chip1.setText("Hello");
-                chip2.setText("How are you?");
-                chip3.setText("Thank you");
+                chip1.setText("Hello"); chip2.setText("How are you?"); chip3.setText("Thank you");
                 break;
             case "fr":
-                chip1.setText("Bonjour");
-                chip2.setText("Comment ça va?");
-                chip3.setText("Merci");
+                chip1.setText("Bonjour"); chip2.setText("Comment ça va?"); chip3.setText("Merci");
                 break;
             case "de":
-                chip1.setText("Hallo");
-                chip2.setText("Wie geht es dir?");
-                chip3.setText("Danke");
+                chip1.setText("Hallo"); chip2.setText("Wie geht es dir?"); chip3.setText("Danke");
                 break;
-            // Añade más casos si lo deseas
             default:
-                chip1.setText("Hello");
-                chip2.setText("How are you?");
-                chip3.setText("Thank you");
+                chip1.setText("Hello"); chip2.setText("How are you?"); chip3.setText("Thank you");
         }
     }
 

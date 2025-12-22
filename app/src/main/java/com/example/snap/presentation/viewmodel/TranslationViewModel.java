@@ -5,76 +5,117 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.snap.data.entities.Favorite;
 import com.example.snap.data.entities.TranslationHistory;
-import com.example.snap.data.repository.TranslationRepository;
-import com.example.snap.services.NetworkTranslationService; // Importa tu servicio
+import com.example.snap.data.entities.User;
+import com.example.snap.data.repository.FavoriteRepository;
+import com.example.snap.data.repository.TranslationHistoryRepository;
+import com.example.snap.data.repository.UserRepository;
+import com.example.snap.services.NetworkTranslationService;
 
 import java.util.List;
 
 public class TranslationViewModel extends AndroidViewModel {
 
-    private TranslationRepository repository;
-    private NetworkTranslationService networkService; // Instancia del servicio de red
-    private LiveData<List<TranslationHistory>> allTranslations;
+    private TranslationHistoryRepository historyRepository;
+    private FavoriteRepository favoriteRepository;
+    private UserRepository userRepository;
+
+    private NetworkTranslationService networkService;
     private MutableLiveData<String> currentTranslation;
 
     public TranslationViewModel(Application application) {
         super(application);
-        repository = new TranslationRepository(application);
-        // INICIALIZAMOS EL SERVICIO DE RED
+        historyRepository = new TranslationHistoryRepository(application);
+        favoriteRepository = new FavoriteRepository(application);
+        userRepository = new UserRepository(application);
+
         networkService = new NetworkTranslationService(application);
-        allTranslations = repository.getAllTranslations();
         currentTranslation = new MutableLiveData<>();
     }
 
-    public LiveData<List<TranslationHistory>> getAllTranslations() {
-        return allTranslations;
+
+    public void insertUser(String userId, String name, String email, Runnable onSuccess, Runnable onError) {
+
+        userRepository.getUserByEmail(email).observeForever(existingUser -> {
+            if (existingUser == null) {
+                User newUser = new User(userId, name, email);
+                userRepository.register(newUser);
+                if (onSuccess != null) onSuccess.run();
+            } else {
+                if (onError != null) onError.run();
+            }
+        });
+    }
+
+
+    public LiveData<User> getUserData(String userId) {
+        return userRepository.getUserByEmail(userId);
+    }
+
+    public LiveData<List<TranslationHistory>> getHistoryByUserId(String userId) {
+        return historyRepository.getHistoryByUserId(userId);
+    }
+
+    public void clearHistory(String userId) {
+        historyRepository.clearHistory(userId);
     }
 
     public LiveData<String> getCurrentTranslation() {
         return currentTranslation;
     }
 
-    public void translateText(String text, String sourceLang, String targetLang) {
-        // LLAMADA A LA API REAL
+    public void translateText(String text, String sourceLang, String targetLang, String userId) {
+        showLoading();
         networkService.translateText(text, sourceLang, targetLang, new NetworkTranslationService.TranslationCallback() {
             @Override
             public void onSuccess(String translatedText) {
-                // Actualizamos la UI con el texto real de la API
                 currentTranslation.postValue(translatedText);
 
-                // Guardamos en el historial de Room
-                saveToHistory(text, translatedText, sourceLang, targetLang);
+                // Solo intentamos guardar si hay un usuario logueado
+                if (userId != null) {
+                    saveToHistory(userId, text, translatedText, sourceLang, targetLang, "TEXT");
+                }
             }
-
             @Override
             public void onError(String error) {
-                // Si falla la red, mostramos el error
-                currentTranslation.postValue("Error: " + error + " (modo offline)");
+                currentTranslation.postValue("Error: " + error);
             }
         });
     }
 
-    // ELIMINADOS LOS MÉTODOS SIMULATE... YA NO SON NECESARIOS
+    private void saveToHistory(String userId, String sourceText, String translatedText,
+                               String sourceLang, String targetLang, String inputMethod) {
 
-    private void saveToHistory(String sourceText, String translatedText,
-                               String sourceLang, String targetLang) {
+        if (userId == null) {
+            return;
+        }
+
         TranslationHistory history = new TranslationHistory(
-                "default_user",
+                userId,
                 sourceText,
                 translatedText,
                 sourceLang,
                 targetLang,
-                "TEXT"
+                inputMethod
         );
-        repository.insert(history);
+
+        historyRepository.insert(history);
     }
 
-    public void deleteFromHistory(long id) {
-        repository.deleteById(id);
+    public void addToFavorites(String userId, String original, String translated, String sLang, String tLang, boolean isExp) {
+        // También es recomendable validar aquí si el userId es nulo según tu lógica de negocio
+        if (userId != null) {
+            Favorite fav = new Favorite(userId, original, translated, sLang, tLang, isExp);
+            favoriteRepository.insert(fav);
+        }
     }
 
-    public void clearAllHistory() {
-        repository.deleteAll();
+    public LiveData<List<String>> getFavoriteLanguages(String userId) {
+        return favoriteRepository.getFavoriteLanguagesByUser(userId);
+    }
+
+    private void showLoading() {
+        currentTranslation.setValue("Traduciendo...");
     }
 }

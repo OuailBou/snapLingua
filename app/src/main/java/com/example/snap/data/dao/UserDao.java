@@ -1,8 +1,7 @@
-package com.example.snap.data.dao;
-
-import androidx.lifecycle.LiveData;
+package com.example.snap.data.dao;import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -10,22 +9,19 @@ import com.example.snap.data.entities.User;
 
 @Dao
 public interface UserDao {
+    
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    void register(User user);
 
-    @Insert
-    void insert(User user);
+    @Query("SELECT * FROM users WHERE email = :email AND password = :password LIMIT 1")
+    User login(String email, String password);
 
     @Update
-    void update(User user);
+    void updateUser(User user);
 
-    @Query("SELECT * FROM users WHERE id = :userId")
-    User getUserById(String userId);
+    @Query("SELECT EXISTS(SELECT 1 FROM users WHERE email = :email)")
+    boolean isEmailRegistered(String email);
 
-    @Query("SELECT * FROM users WHERE id = :userId")
-    LiveData<User> getUserByIdLiveData(String userId);
-
-    @Query("DELETE FROM users WHERE id = :userId")
-    void deleteUser(String userId);
-
-    @Query("SELECT COUNT(*) FROM users")
-    int getCount();
+    @Query("SELECT * FROM users WHERE email = :email LIMIT 1")
+    LiveData<User> getUserByEmail(String email);
 }
