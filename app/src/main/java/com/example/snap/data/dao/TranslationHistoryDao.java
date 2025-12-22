@@ -19,10 +19,6 @@ public interface TranslationHistoryDao {
     @Query("SELECT * FROM translation_history WHERE userId = :userId ORDER BY timestamp DESC")
     LiveData<List<TranslationHistory>> getAllHistoryByUser(String userId);
 
-
-    @Query("SELECT * FROM translation_history WHERE userId = :userId AND (sourceLanguage = :lang OR targetLanguage = :lang) ORDER BY timestamp DESC")
-    LiveData<List<TranslationHistory>> getByLanguage(String userId, String lang);
-
     @Query("DELETE FROM translation_history WHERE userId = :userId")
     void deleteHistoryByUser(String userId);
 

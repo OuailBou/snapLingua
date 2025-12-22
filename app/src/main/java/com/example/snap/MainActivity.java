@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -34,12 +35,25 @@ public class MainActivity extends AppCompatActivity {
     private String currentUserId; // Almacena el usuario logueado o null
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(Bundle savedInstanceState) {super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 1. Recuperar el ID del usuario enviado desde Login (puede ser null si es invitado)
+        // 1. Recuperar el ID del usuario: primero del Intent, si no hay, de SharedPreferences
         currentUserId = getIntent().getStringExtra("USER_ID");
+        
+        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+        
+        // Si viene del Intent, asegurarse de que también esté en SharedPreferences
+        if (currentUserId != null) {
+            android.util.Log.d("MainActivity", "Usuario recibido del Intent: " + currentUserId);
+            // Guardar en SharedPreferences para asegurar persistencia
+            prefs.edit().putString("active_email", currentUserId).commit();
+            android.util.Log.d("MainActivity", "Sesión guardada/actualizada en SharedPreferences");
+        } else {
+            // Si no viene del Intent, buscar en SharedPreferences (sesión persistente)
+            currentUserId = prefs.getString("active_email", null);
+            android.util.Log.d("MainActivity", "Sesión leída de SharedPreferences: " + currentUserId);
+        }
 
         // 2. Inicializar componentes
         initializeViews();
@@ -52,8 +66,34 @@ public class MainActivity extends AppCompatActivity {
         setupObservers();
         setupListeners();
 
-        Toast.makeText(this, "Traductor listo", Toast.LENGTH_SHORT).show();
+        // Mensaje de bienvenida dinámico
+        if (currentUserId == null) {
+            Toast.makeText(this, "Modo Invitado: Inicia sesión para guardar", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Sesión activa: " + currentUserId, Toast.LENGTH_SHORT).show();
+        }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Verificamos si la sesión sigue activa en el disco
+        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+        String activeEmail = prefs.getString("active_email", null);
+
+        // Actualizar currentUserId solo si hay un cambio válido
+        if (activeEmail == null && currentUserId != null) {
+            // La sesión fue cerrada externamente, actualizar a null
+            android.util.Log.d("MainActivity", "Sesión cerrada, actualizando a invitado");
+            currentUserId = null;
+        } else if (activeEmail != null) {
+            // Hay sesión activa, actualizar currentUserId
+            android.util.Log.d("MainActivity", "Sesión activa en onResume: " + activeEmail);
+            currentUserId = activeEmail;
+        }
+    }
+
+
 
     private void initializeViews() {
         spinnerInput = findViewById(R.id.spinnerInput);
@@ -146,6 +186,31 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Botón Star (Guardar como favorito)
+        btnStar.setOnClickListener(v -> {
+            String inputText = etInput.getText().toString().trim();
+            String outputText = tvOutput.getText().toString().trim();
+            
+            if (currentUserId == null || currentUserId.trim().isEmpty()) {
+                Toast.makeText(this, "Inicia sesión para guardar favoritos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            if (inputText.isEmpty() || outputText.isEmpty() || 
+                outputText.equals("La traducción aparecerá aquí") || 
+                outputText.equals("Traduciendo...")) {
+                Toast.makeText(this, "No hay traducción para guardar", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            String sourceLang = getLanguageCode(spinnerInput.getSelectedItemPosition());
+            String targetLang = getLanguageCode(spinnerOutput.getSelectedItemPosition());
+            
+            // Guardar como favorito
+            viewModel.saveFavorite(currentUserId, inputText, outputText, sourceLang, targetLang);
+            Toast.makeText(this, "Agregado a favoritos ⭐", Toast.LENGTH_SHORT).show();
+        });
+
         // Enter en el teclado
         etInput.setOnEditorActionListener((v, actionId, event) -> {
             performTranslation();
@@ -162,20 +227,40 @@ public class MainActivity extends AppCompatActivity {
         chip2.setOnClickListener(chipListener);
         chip3.setOnClickListener(chipListener);
 
-        // --- NUEVO: Lógica de navegación del botón Usuario ---
+        // --- NAVEGACIÓN BOTTOM BAR ---
+
+        // Botón Texto (Ir a la pantalla de texto/principal)
+        View btnNavTexto = findViewById(R.id.nav_texto);
+        if (btnNavTexto != null) {
+            btnNavTexto.setOnClickListener(v -> {
+                // Al ya estar en MainActivity, simplemente limpiamos o hacemos scroll arriba
+                btnClear.performClick();
+                Toast.makeText(this, "Modo Texto", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        // Botón Cámara (Redirigir a Texto por ahora)
+        View btnNavCamara = findViewById(R.id.nav_camara);
+        if (btnNavCamara != null) {
+            btnNavCamara.setOnClickListener(v -> {
+                // Como pides que lleve a la pantalla de texto, realizamos la misma acción
+                btnClear.performClick();
+                Toast.makeText(this, "Modo Cámara (Redirigido a Texto)", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        // Botón Usuario
         View btnNavUsuario = findViewById(R.id.nav_usuario);
         if (btnNavUsuario != null) {
             btnNavUsuario.setOnClickListener(v -> {
                 if (currentUserId != null && !currentUserId.trim().isEmpty()) {
-                    // SI HAY USUARIO: Ir a Estadísticas (Comentado porque no existe aún)
-                    /*
+                    // SI HAY USUARIO: Ir a Estadísticas
                     Intent intent = new Intent(MainActivity.this, StatisticsActivity.class);
                     intent.putExtra("USER_ID", currentUserId);
                     startActivity(intent);
-                    */
-                    Toast.makeText(this, "Usuario activo: " + currentUserId, Toast.LENGTH_SHORT).show();
                 } else {
                     // NO HAY USUARIO: Ir a Login
+                    Toast.makeText(this, "Inicia sesión para ver tu historial", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     startActivity(intent);
                 }
@@ -199,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
         String sourceLang = getLanguageCode(spinnerInput.getSelectedItemPosition());
         String targetLang = getLanguageCode(spinnerOutput.getSelectedItemPosition());
 
-        // LLAMADA ACTUALIZADA: Se incluye el currentUserId para el historial
+        // Se incluye el currentUserId para el historial
         viewModel.translateText(text, sourceLang, targetLang, currentUserId);
     }
 

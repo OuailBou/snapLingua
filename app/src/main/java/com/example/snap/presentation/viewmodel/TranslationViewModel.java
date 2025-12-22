@@ -4,6 +4,7 @@ import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.example.snap.data.entities.Favorite;
 import com.example.snap.data.entities.TranslationHistory;
@@ -37,13 +38,22 @@ public class TranslationViewModel extends AndroidViewModel {
 
     public void insertUser(String userId, String name, String email, Runnable onSuccess, Runnable onError) {
 
-        userRepository.getUserByEmail(email).observeForever(existingUser -> {
-            if (existingUser == null) {
-                User newUser = new User(userId, name, email);
-                userRepository.register(newUser);
-                if (onSuccess != null) onSuccess.run();
-            } else {
-                if (onError != null) onError.run();
+        userRepository.getUserByEmail(email).observeForever(new Observer<User>() {
+            @Override
+            public void onChanged(User existingUser) {
+                // Remover observer inmediatamente para evitar múltiples llamadas
+                userRepository.getUserByEmail(email).removeObserver(this);
+                
+                if (existingUser == null) {
+                    User newUser = new User(userId, name, email);
+                    // Usar el register con callback para ejecutar onSuccess solo cuando se haya guardado
+                    userRepository.register(newUser, () -> {
+                        android.util.Log.d("TranslationViewModel", "Usuario guardado en BD, ejecutando onSuccess");
+                        if (onSuccess != null) onSuccess.run();
+                    });
+                } else {
+                    if (onError != null) onError.run();
+                }
             }
         });
     }
@@ -109,6 +119,17 @@ public class TranslationViewModel extends AndroidViewModel {
             Favorite fav = new Favorite(userId, original, translated, sLang, tLang, isExp);
             favoriteRepository.insert(fav);
         }
+    }
+    
+    public void saveFavorite(String userId, String original, String translated, String sLang, String tLang) {
+        if (userId != null) {
+            Favorite fav = new Favorite(userId, original, translated, sLang, tLang, false);
+            favoriteRepository.insert(fav);
+        }
+    }
+    
+    public LiveData<List<Favorite>> getFavoritesByUser(String userId) {
+        return favoriteRepository.getAllFavoritesByUser(userId);
     }
 
     public LiveData<List<String>> getFavoriteLanguages(String userId) {

@@ -15,12 +15,13 @@ public interface UserDao {
 
     @Query("SELECT * FROM users WHERE email = :email AND password = :password LIMIT 1")
     User login(String email, String password);
+    
+    @Query("SELECT * FROM users WHERE email = :email LIMIT 1")
+    User getUserByEmailSync(String email);
 
     @Update
     void updateUser(User user);
 
-    @Query("SELECT EXISTS(SELECT 1 FROM users WHERE email = :email)")
-    boolean isEmailRegistered(String email);
 
     @Query("SELECT * FROM users WHERE email = :email LIMIT 1")
     LiveData<User> getUserByEmail(String email);
