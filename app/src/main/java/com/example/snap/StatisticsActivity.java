@@ -12,6 +12,7 @@ import com.example.snap.data.entities.Favorite;
 import com.example.snap.data.entities.TranslationHistory;
 import com.example.snap.ui.base.BaseActivity;
 import com.example.snap.ui.components.BottomNavigationComponent;
+import com.example.snap.ui.components.FavoritesAdapter;
 import com.example.snap.ui.components.HistoryAdapter;
 
 import java.util.ArrayList;
@@ -25,10 +26,11 @@ import java.util.Map;
  */
 public class StatisticsActivity extends BaseActivity {
 
-    private TextView tvUserEmail, tvFavoriteLangs, tvSavedWords;
-    private RecyclerView rvHistory;
+    private TextView tvUserEmail, tvFavoriteLangs;
+    private RecyclerView rvHistory, rvFavorites;
     private Button btnLogout;
     private HistoryAdapter historyAdapter;
+    private FavoritesAdapter favoritesAdapter;
     private BottomNavigationComponent bottomNavigation;
 
     @Override
@@ -57,8 +59,8 @@ public class StatisticsActivity extends BaseActivity {
     private void initializeViews() {
         tvUserEmail = findViewById(R.id.tvUserEmail);
         tvFavoriteLangs = findViewById(R.id.tvFavoriteLangs);
-        tvSavedWords = findViewById(R.id.tvSavedWords);
         rvHistory = findViewById(R.id.rvHistory);
+        rvFavorites = findViewById(R.id.rvFavorites);
         btnLogout = findViewById(R.id.btnLogout);
 
         // Configurar UI según estado de sesión
@@ -80,6 +82,25 @@ public class StatisticsActivity extends BaseActivity {
         historyAdapter = new HistoryAdapter(new ArrayList<>());
         rvHistory.setLayoutManager(new LinearLayoutManager(this));
         rvHistory.setAdapter(historyAdapter);
+        
+        // Configurar RecyclerView para favoritos
+        favoritesAdapter = new FavoritesAdapter(new ArrayList<>());
+        rvFavorites.setLayoutManager(new LinearLayoutManager(this));
+        rvFavorites.setAdapter(favoritesAdapter);
+        
+        // Configurar listener para eliminar favoritos
+        favoritesAdapter.setOnFavoriteActionListener(new FavoritesAdapter.OnFavoriteActionListener() {
+            @Override
+            public void onFavoriteClick(Favorite favorite) {
+                showMessage(favorite.getOriginalText() + " → " + favorite.getTranslatedText());
+            }
+
+            @Override
+            public void onFavoriteDelete(Favorite favorite) {
+                viewModel.deleteFavorite(favorite);
+                showMessage("Favorito eliminado");
+            }
+        });
 
         // Configurar botón de logout/login
         btnLogout.setOnClickListener(v -> {
@@ -156,18 +177,9 @@ public class StatisticsActivity extends BaseActivity {
      */
     private void displayFavorites(List<Favorite> favorites) {
         if (favorites != null && !favorites.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < Math.min(favorites.size(), 10); i++) {
-                Favorite fav = favorites.get(i);
-                sb.append("⭐ ")
-                  .append(fav.getOriginalText())
-                  .append(" → ")
-                  .append(fav.getTranslatedText())
-                  .append("\n");
-            }
-            tvSavedWords.setText(sb.toString().trim());
+            favoritesAdapter.updateData(favorites);
         } else {
-            tvSavedWords.setText("No hay palabras guardadas.");
+            favoritesAdapter.updateData(new ArrayList<>());
         }
     }
 
@@ -209,7 +221,7 @@ public class StatisticsActivity extends BaseActivity {
      */
     private void showLoginPrompt() {
         tvFavoriteLangs.setText("Inicia sesión para ver tus idiomas favoritos");
-        tvSavedWords.setText("Inicia sesión para ver tus palabras guardadas");
+        favoritesAdapter.updateData(new ArrayList<>());
         showMessage("Inicia sesión para ver tu historial y estadísticas");
     }
 }
