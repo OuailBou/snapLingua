@@ -36,8 +36,6 @@ public class TextActivity extends BaseActivity {
     private String sourceLang = "es";
     private String targetLang = "en";
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,14 +88,11 @@ public class TextActivity extends BaseActivity {
 
     private void setupListeners() {
 
-
         btnClear.setOnClickListener(v -> {
             etInput.setText("");
             tvOutput.setText("La traducción aparecerá aquí");
             hideProgress();
         });
-
-
 
         btnCopy.setOnClickListener(v -> {
             String textToCopy = tvOutput.getText().toString();
@@ -152,10 +147,13 @@ public class TextActivity extends BaseActivity {
                 @Override
                 public void onCamaraClicked() {
                     bottomNavigation.getNavigationManager().navigateToCamera();
-                    // finish(); // No cerramos TextActivity si queremos mantenerla como base, o sí si queremos pure tabs.
+                    // finish(); // No cerramos TextActivity si queremos mantenerla como base, o sí
+                    // si queremos pure tabs.
                     // Si no ponemos finish() aquí pero el componente tiene finishCurrentActivity(),
-                    // el setNavigationListener evita que se ejecute el switch por defecto del componente.
-                    // Si queremos que TextActivity se cierre, debemos llamarlo explícitamente o no poner el listener y dejar el default.
+                    // el setNavigationListener evita que se ejecute el switch por defecto del
+                    // componente.
+                    // Si queremos que TextActivity se cierre, debemos llamarlo explícitamente o no
+                    // poner el listener y dejar el default.
 
                     // Como estamos overrideando, llamamos finish si queremos comportamiento tab
                     // finish();
@@ -163,7 +161,7 @@ public class TextActivity extends BaseActivity {
 
                 @Override
                 public void onAudioClicked() {
-                    showMessage("Modo Audio (Próximamente)");
+                    bottomNavigation.getNavigationManager().navigateToVoz();
                 }
 
                 @Override
@@ -176,15 +174,16 @@ public class TextActivity extends BaseActivity {
             bottomNavigation.updateUserButtonState();
         }
     }
-/*
-    // --- AHORA SÍ: Limpio y sin lógica repetida ---
-    private void setupBottomNavigation() {
-        bottomNavigation = findViewById(R.id.bottomNavigation);
-        if (bottomNavigation != null) {
-            bottomNavigation.setActiveScreen("texto");
-            bottomNavigation.updateUserButtonState();
-        }
-    }*/
+    /*
+     * // --- AHORA SÍ: Limpio y sin lógica repetida ---
+     * private void setupBottomNavigation() {
+     * bottomNavigation = findViewById(R.id.bottomNavigation);
+     * if (bottomNavigation != null) {
+     * bottomNavigation.setActiveScreen("texto");
+     * bottomNavigation.updateUserButtonState();
+     * }
+     * }
+     */
 
     private void setupObservers() {
         viewModel.getCurrentTranslation().observe(this, translatedText -> {
@@ -235,20 +234,21 @@ public class TextActivity extends BaseActivity {
         chip3.setText(phrases[2]);
     }
 
-
     private boolean isValidTranslation(String text) {
         return text != null &&
-               !text.isEmpty() &&
-               !text.equals("La traducción aparecerá aquí") &&
-               !text.equals("Traduciendo...");
+                !text.isEmpty() &&
+                !text.equals("La traducción aparecerá aquí") &&
+                !text.equals("Traduciendo...");
     }
 
     private void showProgress() {
-        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        if (progressBar != null)
+            progressBar.setVisibility(View.VISIBLE);
     }
 
     private void hideProgress() {
-        if (progressBar != null) progressBar.setVisibility(View.GONE);
+        if (progressBar != null)
+            progressBar.setVisibility(View.GONE);
     }
 
     private void showWelcomeMessage() {
