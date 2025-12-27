@@ -3,6 +3,7 @@ package com.example.snap;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -24,7 +25,7 @@ import com.example.snap.utils.LanguageHelper;
 public class MainActivity extends BaseActivity {
 
     // Vistas
-    private Spinner spinnerInput, spinnerOutput;
+
     private EditText etInput;
     private TextView tvOutput;
     private ImageView btnClear, btnSwap, btnVolume, btnStar, btnCopy;
@@ -37,20 +38,9 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text);
 
-        // Inicializar vistas
-        initializeViews();
-        
-        // Configurar spinners
-        setupSpinners();
-        
-        // Configurar listeners
-        setupListeners();
-        
-        // Configurar observers
-        setupObservers();
-        
-        // Configurar navegación
-        setupBottomNavigation();
+        startActivity(new Intent(this, TextActivity.class));
+        finish();
+
         
         // Mostrar mensaje de bienvenida
         showWelcomeMessage();
@@ -63,10 +53,10 @@ public class MainActivity extends BaseActivity {
             bottomNavigation.updateUserButtonState();
         }
     }
-
-    /**
+/*
+    *//**
      * Inicializa las vistas de la actividad
-     */
+     *//*
     private void initializeViews() {
         etInput = findViewById(R.id.etInput);
         tvOutput = findViewById(R.id.tvOutput);
@@ -82,11 +72,11 @@ public class MainActivity extends BaseActivity {
         if (progressBar != null) {
             progressBar.setVisibility(View.GONE);
         }
-    }
+    }*/
 
-    /**
+/*    *//**
      * Configura los spinners de idiomas usando LanguageHelper
-     */
+     *//*
     private void setupSpinners() {
         String[] languages = LanguageHelper.getAvailableLanguages();
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
@@ -98,11 +88,11 @@ public class MainActivity extends BaseActivity {
 
         spinnerInput.setSelection(0); // Español
         spinnerOutput.setSelection(1); // Inglés
-    }
-
-    /**
+    }*/
+/*
+    *//**
      * Configura los listeners de las vistas
-     */
+     *//*
     private void setupListeners() {
         // Listener para actualizar chips según idioma
         spinnerInput.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
@@ -172,11 +162,11 @@ public class MainActivity extends BaseActivity {
         chip3.setOnClickListener(chipListener);
 
         updateQuickTranslationChips();
-    }
+    }*/
 
-    /**
+/*    *//**
      * Configura la navegación inferior
-     */
+     *//*
     private void setupBottomNavigation() {
         bottomNavigation = findViewById(R.id.bottomNavigation);
         if (bottomNavigation != null) {
@@ -207,11 +197,11 @@ public class MainActivity extends BaseActivity {
             bottomNavigation.setActiveScreen("texto");
             bottomNavigation.updateUserButtonState();
         }
-    }
-
-    /**
+    }*/
+/*
+    *//**
      * Configura los observadores del ViewModel
-     */
+     *//*
     private void setupObservers() {
         viewModel.getCurrentTranslation().observe(this, translatedText -> {
             hideProgress();
@@ -222,11 +212,14 @@ public class MainActivity extends BaseActivity {
                 tvOutput.animate().alpha(1).setDuration(500).start();
             }
         });
-    }
+    }*/
+/*
 
-    /**
+    */
+/**
      * Realiza una traducción
-     */
+     *//*
+
     private void performTranslation() {
         String text = etInput.getText().toString().trim();
 
@@ -243,10 +236,11 @@ public class MainActivity extends BaseActivity {
 
         viewModel.translateText(text, sourceLang, targetLang, getCurrentUser());
     }
-
-    /**
+*/
+/*
+    *//**
      * Guarda una traducción como favorita
-     */
+     *//*
     private void saveFavorite() {
         String inputText = etInput.getText().toString().trim();
         String outputText = tvOutput.getText().toString().trim();
@@ -268,9 +262,9 @@ public class MainActivity extends BaseActivity {
         showMessage("Agregado a favoritos ⭐");
     }
 
-    /**
+    *//**
      * Actualiza los chips de traducción rápida usando LanguageHelper
-     */
+     *//*
     private void updateQuickTranslationChips() {
         String[] phrases = LanguageHelper.getQuickPhrasesByPosition(
             spinnerInput.getSelectedItemPosition()
@@ -280,9 +274,9 @@ public class MainActivity extends BaseActivity {
         chip3.setText(phrases[2]);
     }
 
-    /**
+    *//**
      * Verifica si el texto es una traducción válida
-     */
+     *//*
     private boolean isValidTranslation(String text) {
         return text != null && 
                !text.isEmpty() && 
@@ -290,21 +284,21 @@ public class MainActivity extends BaseActivity {
                !text.equals("Traduciendo...");
     }
 
-    /**
+    *//**
      * Muestra el indicador de progreso
-     */
+     *//*
     private void showProgress() {
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
         btnSwap.setEnabled(false);
     }
 
-    /**
+    *//**
      * Oculta el indicador de progreso
-     */
+     *//*
     private void hideProgress() {
         if (progressBar != null) progressBar.setVisibility(View.GONE);
         btnSwap.setEnabled(true);
-    }
+    }*/
 
     /**
      * Muestra mensaje de bienvenida según el estado de la sesión

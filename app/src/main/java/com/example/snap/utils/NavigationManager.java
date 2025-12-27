@@ -7,6 +7,7 @@ import android.content.Intent;
 import com.example.snap.TextActivity;
 import com.example.snap.LoginActivity;
 import com.example.snap.StatisticsActivity;
+import com.example.snap.VoiceActivity;
 import com.example.snap.camara.Camara;
 
 /**
@@ -56,6 +57,18 @@ public class NavigationManager {
      */
     public void navigateToCamera() {
         Intent intent = new Intent(context, Camara.class);
+        String userId = sessionManager.getActiveUser();
+        if (userId != null) {
+            intent.putExtra("USER_ID", userId);
+        }
+        context.startActivity(intent);
+    }
+
+    /**
+     * Navega específicamente a la pantalla de Voz
+     */
+    public void navigateToVoz() {
+        Intent intent = new Intent(context, VoiceActivity.class);
         String userId = sessionManager.getActiveUser();
         if (userId != null) {
             intent.putExtra("USER_ID", userId);

@@ -9,16 +9,12 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
@@ -31,6 +27,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.snap.R;
+import com.example.snap.ui.base.BaseActivity;
 import com.example.snap.ui.components.BottomNavigationComponent;
 import com.example.snap.ui.components.LanguageSelector;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -47,7 +44,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Camara extends AppCompatActivity {
+public class Camara extends BaseActivity {
 
     private static final String TAG = "CamaraActivity";
 
@@ -105,6 +102,15 @@ public class Camara extends AppCompatActivity {
         textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
         checkAndRequestPermissions();
+        
+        showWelcomeMessage();
+    }
+    
+    @Override
+    protected void onSessionUpdated() {
+        if (bottomNavigation != null) {
+            bottomNavigation.updateUserButtonState();
+        }
     }
 
     private void initializeViews() {
@@ -126,9 +132,7 @@ public class Camara extends AppCompatActivity {
     // --- MÁGICA Y LIMPIA ---
     private void setupNavigation() {
         if (bottomNavigation != null) {
-            // Solo le decimos quiénes somos
-            bottomNavigation.setActiveScreen("camara");
-            // El componente maneja clicks y navegación automáticamente
+            bottomNavigation.attachToScreen("camara");
         }
     }
 
@@ -311,6 +315,14 @@ public class Camara extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Error OCR", Toast.LENGTH_SHORT).show());
+    }
+
+    private void showWelcomeMessage() {
+        if (!isUserLoggedIn()) {
+            showMessage("Modo Invitado — camara activa");
+        } else {
+            showMessage("Hola " + getCurrentUser());
+        }
     }
 
     private void resetToCamera() {
