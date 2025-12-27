@@ -35,6 +35,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.android.material:material:1.12.0")
     implementation("com.google.android.material:material:1.11.0")
     // API Traduccion
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -78,6 +79,7 @@ dependencies {
 
     // ML Kit
     implementation("com.google.mlkit:text-recognition:16.0.0")
+    implementation("com.google.mlkit:translate:17.0.2")
     // implementation("com.google.mlkit:text-recognition-japanese:16.0.0")
     // implementation("com.google.mlkit:text-recognition-korean:16.0.0")
 }
