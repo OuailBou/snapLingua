@@ -142,9 +142,21 @@ public class TranslationViewModel extends AndroidViewModel {
         }
     }
     
+    public void restoreFavorite(Favorite favorite) {
+        if (favorite != null) {
+            favoriteRepository.insert(favorite);
+        }
+    }
+    
     public void deleteHistory(TranslationHistory history) {
         if (history != null) {
             historyRepository.delete(history);
+        }
+    }
+    
+    public void restoreHistory(TranslationHistory history) {
+        if (history != null) {
+            historyRepository.insert(history);
         }
     }
     

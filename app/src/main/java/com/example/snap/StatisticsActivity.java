@@ -9,6 +9,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import com.example.snap.data.entities.Favorite;
 import com.example.snap.data.entities.TranslationHistory;
 import com.example.snap.ui.base.BaseActivity;
@@ -200,32 +202,74 @@ public class StatisticsActivity extends BaseActivity {
     }
     
     private void showClearHistoryDialog() {
+        String userId = getCurrentUser();
+        if (userId == null) return;
+        
+        // Capturar el historial actual antes de mostrar el diálogo
+        List<TranslationHistory> currentHistory = new ArrayList<>();
+        viewModel.getHistoryByUserId(userId).observe(this, historyList -> {
+            if (historyList != null && !currentHistory.isEmpty() == false) {
+                // Solo capturar una vez
+                if (currentHistory.isEmpty()) {
+                    currentHistory.addAll(historyList);
+                }
+            }
+        });
+        
         new AlertDialog.Builder(this)
                 .setTitle("Borrar historial")
                 .setMessage("¿Desea borrar todo el historial?")
                 .setPositiveButton("Sí", (dialog, which) -> {
-                    String userId = getCurrentUser();
-                    if (userId != null) {
-                        viewModel.clearAllHistory(userId);
-                        showMessage("Historial borrado");
-                        historyAdapter.updateData(new ArrayList<>());
-                    }
+                    viewModel.clearAllHistory(userId);
+                    historyAdapter.updateData(new ArrayList<>());
+                    
+                    // Mostrar Snackbar con opción de deshacer
+                    Snackbar.make(findViewById(android.R.id.content), 
+                            "Historial borrado", Snackbar.LENGTH_LONG)
+                            .setAction("DESHACER", v -> {
+                                // Restaurar todos los elementos
+                                for (TranslationHistory history : currentHistory) {
+                                    viewModel.restoreHistory(history);
+                                }
+                            })
+                            .show();
                 })
                 .setNegativeButton("No", null)
                 .show();
     }
     
     private void showClearFavoritesDialog() {
+        String userId = getCurrentUser();
+        if (userId == null) return;
+        
+        // Capturar los favoritos actuales antes de mostrar el diálogo
+        List<Favorite> currentFavorites = new ArrayList<>();
+        viewModel.getFavoritesByUser(userId).observe(this, favorites -> {
+            if (favorites != null && !currentFavorites.isEmpty() == false) {
+                // Solo capturar una vez
+                if (currentFavorites.isEmpty()) {
+                    currentFavorites.addAll(favorites);
+                }
+            }
+        });
+        
         new AlertDialog.Builder(this)
                 .setTitle("Borrar favoritos")
                 .setMessage("¿Desea borrar todos los favoritos?")
                 .setPositiveButton("Sí", (dialog, which) -> {
-                    String userId = getCurrentUser();
-                    if (userId != null) {
-                        viewModel.clearAllFavorites(userId);
-                        showMessage("Favoritos borrados");
-                        favoritesAdapter.updateData(new ArrayList<>());
-                    }
+                    viewModel.clearAllFavorites(userId);
+                    favoritesAdapter.updateData(new ArrayList<>());
+                    
+                    // Mostrar Snackbar con opción de deshacer
+                    Snackbar.make(findViewById(android.R.id.content), 
+                            "Favoritos borrados", Snackbar.LENGTH_LONG)
+                            .setAction("DESHACER", v -> {
+                                // Restaurar todos los elementos
+                                for (Favorite favorite : currentFavorites) {
+                                    viewModel.restoreFavorite(favorite);
+                                }
+                            })
+                            .show();
                 })
                 .setNegativeButton("No", null)
                 .show();
@@ -237,7 +281,14 @@ public class StatisticsActivity extends BaseActivity {
                 .setMessage("¿Desea borrar esta traducción del historial?")
                 .setPositiveButton("Sí", (dialog, which) -> {
                     viewModel.deleteHistory(history);
-                    showMessage("Eliminado del historial");
+                    
+                    // Mostrar Snackbar con opción de deshacer
+                    Snackbar.make(findViewById(android.R.id.content), 
+                            "Elemento eliminado", Snackbar.LENGTH_LONG)
+                            .setAction("DESHACER", v -> {
+                                viewModel.restoreHistory(history);
+                            })
+                            .show();
                 })
                 .setNegativeButton("No", null)
                 .show();
@@ -249,7 +300,14 @@ public class StatisticsActivity extends BaseActivity {
                 .setMessage("¿Desea borrar este favorito?")
                 .setPositiveButton("Sí", (dialog, which) -> {
                     viewModel.deleteFavorite(favorite);
-                    showMessage("Favorito eliminado");
+                    
+                    // Mostrar Snackbar con opción de deshacer
+                    Snackbar.make(findViewById(android.R.id.content), 
+                            "Elemento eliminado", Snackbar.LENGTH_LONG)
+                            .setAction("DESHACER", v -> {
+                                viewModel.restoreFavorite(favorite);
+                            })
+                            .show();
                 })
                 .setNegativeButton("No", null)
                 .show();
