@@ -79,6 +79,20 @@ public class TextActivity extends BaseActivity {
     }
 
     private void setupLanguageSelector() {
+        // Cargar preferencias por defecto
+        String currentUser = getCurrentUser();
+        if (currentUser == null)
+            currentUser = "guest";
+
+        android.content.SharedPreferences prefs = getSharedPreferences(
+                com.example.snap.SettingsActivity.PREFS_NAME + "_" + currentUser, MODE_PRIVATE);
+
+        String defaultSource = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_SOURCE_LANG, "es");
+        String defaultTarget = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_TARGET_LANG, "en");
+
+        // Establecer idiomas por defecto (esto disparará el listener)
+        languageSelector.setLanguages(defaultSource, defaultTarget);
+
         languageSelector.setOnLanguageChangeListener((srcCode, tgtCode, srcIndex, tgtIndex) -> {
             sourceLang = srcCode;
             targetLang = tgtCode;

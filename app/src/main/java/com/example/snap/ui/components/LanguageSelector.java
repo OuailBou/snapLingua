@@ -46,8 +46,7 @@ public class LanguageSelector extends LinearLayout {
                 String sourceCode,
                 String targetCode,
                 int sourceIndex,
-                int targetIndex
-        );
+                int targetIndex);
     }
 
     public LanguageSelector(Context context) {
@@ -97,8 +96,7 @@ public class LanguageSelector extends LinearLayout {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 context,
                 android.R.layout.simple_spinner_item,
-                languageNames
-        );
+                languageNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         spinnerSourceLanguage.setAdapter(adapter);
@@ -112,16 +110,16 @@ public class LanguageSelector extends LinearLayout {
     private void setupListeners() {
         btnSwapLanguages.setOnClickListener(v -> swapLanguages());
 
-        AdapterView.OnItemSelectedListener spinnerListener =
-                new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                        notifyLanguageChange();
-                    }
+        AdapterView.OnItemSelectedListener spinnerListener = new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                notifyLanguageChange();
+            }
 
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {}
-                };
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        };
 
         spinnerSourceLanguage.setOnItemSelectedListener(spinnerListener);
         spinnerTargetLanguage.setOnItemSelectedListener(spinnerListener);
@@ -145,14 +143,14 @@ public class LanguageSelector extends LinearLayout {
      * - índices actuales
      */
     private void notifyLanguageChange() {
-        if (listener == null) return;
+        if (listener == null)
+            return;
 
         listener.onLanguageChanged(
                 getSourceLangCode(),
                 getTargetLangCode(),
                 spinnerSourceLanguage.getSelectedItemPosition(),
-                spinnerTargetLanguage.getSelectedItemPosition()
-        );
+                spinnerTargetLanguage.getSelectedItemPosition());
     }
 
     // --- Métodos públicos de acceso limpio ---
@@ -177,7 +175,37 @@ public class LanguageSelector extends LinearLayout {
         notifyLanguageChange();
     }
 
+    public void setLanguages(String sourceCode, String targetCode) {
+        int sourceIndex = -1;
+        int targetIndex = -1;
+
+        // Buscar índices
+        for (int i = 0; i < languageNames.size(); i++) {
+            String name = languageNames.get(i);
+            String code = languagesMap.get(name);
+
+            if (code != null && code.equals(sourceCode)) {
+                sourceIndex = i;
+            }
+            if (code != null && code.equals(targetCode)) {
+                targetIndex = i;
+            }
+        }
+
+        if (sourceIndex != -1) {
+            spinnerSourceLanguage.setSelection(sourceIndex);
+        }
+        if (targetIndex != -1) {
+            spinnerTargetLanguage.setSelection(targetIndex);
+        }
+    }
+
     // Opcional: acceso a los spinners si se requiere personalización visual
-    public Spinner getSpinnerSource() { return spinnerSourceLanguage; }
-    public Spinner getSpinnerTarget() { return spinnerTargetLanguage; }
+    public Spinner getSpinnerSource() {
+        return spinnerSourceLanguage;
+    }
+
+    public Spinner getSpinnerTarget() {
+        return spinnerTargetLanguage;
+    }
 }

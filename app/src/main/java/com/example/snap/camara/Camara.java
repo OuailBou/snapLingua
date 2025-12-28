@@ -67,7 +67,6 @@ public class Camara extends BaseActivity {
 
     private LanguageSelector languageSelector;
 
-
     // Componente reutilizable
     private BottomNavigationComponent bottomNavigation;
 
@@ -87,7 +86,6 @@ public class Camara extends BaseActivity {
     private int currentSourceIndex = 0;
     private int currentTargetIndex = 1;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,10 +100,10 @@ public class Camara extends BaseActivity {
         textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
         checkAndRequestPermissions();
-        
+
         showWelcomeMessage();
     }
-    
+
     @Override
     protected void onSessionUpdated() {
         if (bottomNavigation != null) {
@@ -115,7 +113,6 @@ public class Camara extends BaseActivity {
 
     private void initializeViews() {
         languageSelector = findViewById(R.id.languageSelector);
-
 
         cameraPreview = findViewById(R.id.cameraPreview);
         imagePreview = findViewById(R.id.imagePreview);
@@ -137,6 +134,20 @@ public class Camara extends BaseActivity {
     }
 
     private void setupLanguageSelector() {
+        // Cargar preferencias por defecto
+        String currentUser = getCurrentUser();
+        if (currentUser == null)
+            currentUser = "guest";
+
+        android.content.SharedPreferences prefs = getSharedPreferences(
+                com.example.snap.SettingsActivity.PREFS_NAME + "_" + currentUser, MODE_PRIVATE);
+
+        String defaultSource = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_SOURCE_LANG, "es");
+        String defaultTarget = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_TARGET_LANG, "en");
+
+        // Establecer idiomas por defecto
+        languageSelector.setLanguages(defaultSource, defaultTarget);
+
         languageSelector.setOnLanguageChangeListener((srcCode, tgtCode, srcIndex, tgtIndex) -> {
             currentSourceCode = srcCode;
             currentTargetCode = tgtCode;
@@ -146,8 +157,6 @@ public class Camara extends BaseActivity {
             Log.d("LANG_SELECTOR", "Nuevo idioma: " + srcCode + " -> " + tgtCode);
         });
     }
-
-
 
     private void setupButtons() {
         btnCapture.setOnClickListener(v -> capturePhoto());
@@ -175,14 +184,17 @@ public class Camara extends BaseActivity {
     protected void onPause() {
         super.onPause();
         isProcessing = false;
-        if (graphicOverlay != null) graphicOverlay.clear();
+        if (graphicOverlay != null)
+            graphicOverlay.clear();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (cameraExecutor != null) cameraExecutor.shutdown();
-        if (textRecognizer != null) textRecognizer.close();
+        if (cameraExecutor != null)
+            cameraExecutor.shutdown();
+        if (textRecognizer != null)
+            textRecognizer.close();
     }
 
     private void startCamera() {
@@ -201,7 +213,8 @@ public class Camara extends BaseActivity {
     }
 
     private void bindCameraUseCases() {
-        if (cameraProvider == null) return;
+        if (cameraProvider == null)
+            return;
         Preview preview = new Preview.Builder().build();
         preview.setSurfaceProvider(cameraPreview.getSurfaceProvider());
         CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
@@ -210,8 +223,10 @@ public class Camara extends BaseActivity {
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
         imageAnalysis.setAnalyzer(cameraExecutor, imageProxy -> {
-            if (!isProcessing) processImageProxy(imageProxy);
-            else imageProxy.close();
+            if (!isProcessing)
+                processImageProxy(imageProxy);
+            else
+                imageProxy.close();
         });
         try {
             cameraProvider.unbindAll();
@@ -235,12 +250,14 @@ public class Camara extends BaseActivity {
             return;
         }
 
-        InputImage image = InputImage.fromMediaImage(imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
+        InputImage image = InputImage.fromMediaImage(imageProxy.getImage(),
+                imageProxy.getImageInfo().getRotationDegrees());
         textRecognizer.process(image)
                 .addOnSuccessListener(visionText -> {
                     runOnUiThread(() -> {
                         graphicOverlay.clear();
-                        boolean needRotation = imageProxy.getImageInfo().getRotationDegrees() == 90 || imageProxy.getImageInfo().getRotationDegrees() == 270;
+                        boolean needRotation = imageProxy.getImageInfo().getRotationDegrees() == 90
+                                || imageProxy.getImageInfo().getRotationDegrees() == 270;
                         int width = needRotation ? imageProxy.getHeight() : imageProxy.getWidth();
                         int height = needRotation ? imageProxy.getWidth() : imageProxy.getHeight();
                         graphicOverlay.setImageSourceInfo(width, height, false);
@@ -263,19 +280,22 @@ public class Camara extends BaseActivity {
     }
 
     private void capturePhoto() {
-        if (imageCapture == null) return;
+        if (imageCapture == null)
+            return;
         File photoFile = new File(getExternalFilesDir(null), "photo.jpg");
         ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
-        imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(this), new ImageCapture.OnImageSavedCallback() {
-            @Override
-            public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
-                displayStaticImage(Uri.fromFile(photoFile));
-            }
-            @Override
-            public void onError(@NonNull ImageCaptureException exc) {
-                Log.e(TAG, "Error captura: " + exc.getMessage());
-            }
-        });
+        imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(this),
+                new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
+                        displayStaticImage(Uri.fromFile(photoFile));
+                    }
+
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exc) {
+                        Log.e(TAG, "Error captura: " + exc.getMessage());
+                    }
+                });
     }
 
     private void displayStaticImage(Uri imageUri) {
@@ -351,7 +371,8 @@ public class Camara extends BaseActivity {
 
     private void checkAndRequestPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA },
+                    CAMERA_PERMISSION_CODE);
         } else {
             startCamera();
         }
@@ -359,26 +380,33 @@ public class Camara extends BaseActivity {
 
     private boolean checkStoragePermission() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED;
+            return ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED;
         } else {
-            return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+            return ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
         }
     }
 
     private void requestStoragePermission() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, STORAGE_PERMISSION_CODE);
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.READ_MEDIA_IMAGES },
+                    STORAGE_PERMISSION_CODE);
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
+                    STORAGE_PERMISSION_CODE);
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_PERMISSION_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == CAMERA_PERMISSION_CODE && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             startCamera();
-        } else if (requestCode == STORAGE_PERMISSION_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        } else if (requestCode == STORAGE_PERMISSION_CODE && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             openGallery();
         }
     }
