@@ -27,7 +27,7 @@ public class TextActivity extends BaseActivity {
     private EditText etInput;
     private TextView tvOutput;
     private LanguageSelector languageSelector;
-    private ImageView btnClear, btnVolume, btnStar, btnCopy;
+    private ImageView btnClear, btnVolume, btnStar, btnCopy, btnTranslate;
     private Button chip1, chip2, chip3;
     private ProgressBar progressBar;
     private BottomNavigationComponent bottomNavigation;
@@ -68,6 +68,7 @@ public class TextActivity extends BaseActivity {
         btnVolume = findViewById(R.id.btnVolume);
         btnStar = findViewById(R.id.btnStar);
         btnCopy = findViewById(R.id.btnCopy);
+        btnTranslate = findViewById(R.id.btnTranslate);
         chip1 = findViewById(R.id.chip1);
         chip2 = findViewById(R.id.chip2);
         chip3 = findViewById(R.id.chip3);
@@ -107,6 +108,8 @@ public class TextActivity extends BaseActivity {
             tvOutput.setText("La traducción aparecerá aquí");
             hideProgress();
         });
+
+        btnTranslate.setOnClickListener(v -> performTranslation());
 
         btnCopy.setOnClickListener(v -> {
             String textToCopy = tvOutput.getText().toString();

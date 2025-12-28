@@ -123,6 +123,16 @@
                         android:includeFontPadding="false"
                         />
 
+                    <ImageView
+                        android:id="@+id/btnTranslate"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:contentDescription="Traducir"
+                        android:src="@android:drawable/ic_media_play"
+                        android:rotation="0"
+                        android:padding="4dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        app:tint="#6200EE"/>
 
                     <ImageView
                         android:id="@+id/btnClear"

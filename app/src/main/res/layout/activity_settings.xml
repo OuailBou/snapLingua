@@ -194,48 +194,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Category: Apariencia -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Apariencia"
-                android:textColor="#6200EE"
-                android:textStyle="bold"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"/>
-
-             <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="2dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switchDarkMode"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Modo Oscuro"
-                        android:enabled="false"
-                        android:checked="false"
-                        android:textSize="16sp"/>
-                    
-                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Próximamente..."
-                        android:textSize="12sp"
-                        android:textColor="#757575"
-                        android:layout_marginTop="4dp"/>
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
