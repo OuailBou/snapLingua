@@ -27,7 +27,7 @@ public class TextActivity extends BaseActivity {
     private EditText etInput;
     private TextView tvOutput;
     private LanguageSelector languageSelector;
-    private ImageView btnClear, btnVolume, btnStar, btnCopy;
+    private ImageView btnClear, btnVolume, btnStar, btnCopy, btnTranslate;
     private Button chip1, chip2, chip3;
     private ProgressBar progressBar;
     private BottomNavigationComponent bottomNavigation;
@@ -68,6 +68,7 @@ public class TextActivity extends BaseActivity {
         btnVolume = findViewById(R.id.btnVolume);
         btnStar = findViewById(R.id.btnStar);
         btnCopy = findViewById(R.id.btnCopy);
+        btnTranslate = findViewById(R.id.btnTranslate);
         chip1 = findViewById(R.id.chip1);
         chip2 = findViewById(R.id.chip2);
         chip3 = findViewById(R.id.chip3);
@@ -108,22 +109,24 @@ public class TextActivity extends BaseActivity {
             hideProgress();
         });
 
+        btnTranslate.setOnClickListener(v -> performTranslation());
+
         btnCopy.setOnClickListener(v -> {
             String textToCopy = tvOutput.getText().toString();
             if (isValidTranslation(textToCopy)) {
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("Traducción", textToCopy);
                 clipboard.setPrimaryClip(clip);
-                showMessage("Texto copiado");
+                showMessage(getString(R.string.texto_copiado));
             } else {
-                showMessage("No hay nada para copiar");
+                showMessage(getString(R.string.no_hay_copiar));
             }
         });
 
         btnStar.setOnClickListener(v -> saveFavorite());
 
         if (btnVolume != null) {
-            btnVolume.setOnClickListener(v -> showMessage("Función de audio próximamente"));
+            btnVolume.setOnClickListener(v -> showMessage(getString(R.string.funcion_audio_proximamente)));
         }
 
         etInput.setOnEditorActionListener((v, actionId, event) -> {
@@ -155,7 +158,7 @@ public class TextActivity extends BaseActivity {
                 public void onTextoClicked() {
                     // Si ya estamos en texto, limpiamos el campo
                     btnClear.performClick();
-                    showMessage("Modo Texto reiniciado");
+                    showMessage(getString(R.string.modo_texto_reiniciado));
                 }
 
                 @Override
@@ -213,7 +216,7 @@ public class TextActivity extends BaseActivity {
     private void performTranslation() {
         String text = etInput.getText().toString().trim();
         if (text.isEmpty()) {
-            showMessage("Escribe algo para traducir");
+            showMessage(getString(R.string.escribe_algo_traducir));
             return;
         }
 
@@ -228,17 +231,17 @@ public class TextActivity extends BaseActivity {
         String outputText = tvOutput.getText().toString().trim();
 
         if (!isUserLoggedIn()) {
-            showMessage("Inicia sesión para guardar favoritos");
+            showMessage(getString(R.string.inicia_sesion_favoritos));
             return;
         }
 
         if (inputText.isEmpty() || !isValidTranslation(outputText)) {
-            showMessage("No hay traducción para guardar");
+            showMessage(getString(R.string.no_traduccion_guardar));
             return;
         }
 
         viewModel.saveFavorite(getCurrentUser(), inputText, outputText, sourceLang, targetLang);
-        showMessage("Agregado a favoritos ⭐");
+        showMessage(getString(R.string.agregado_favoritos));
     }
 
     private void updateQuickTranslationChips() {
@@ -267,9 +270,9 @@ public class TextActivity extends BaseActivity {
 
     private void showWelcomeMessage() {
         if (!isUserLoggedIn()) {
-            showMessage("Modo Invitado: Inicia sesión para guardar");
+            showMessage(getString(R.string.modo_invitado_guardar));
         } else {
-            showMessage("Sesión activa: " + getCurrentUser());
+            showMessage(getString(R.string.sesion_activa, getCurrentUser()));
         }
     }
 }

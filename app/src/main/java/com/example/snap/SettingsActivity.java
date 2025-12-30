@@ -14,13 +14,16 @@ public class SettingsActivity extends BaseActivity {
     public static final String KEY_SAVE_HISTORY = "save_history";
     public static final String KEY_DEFAULT_SOURCE_LANG = "default_source_lang";
     public static final String KEY_DEFAULT_TARGET_LANG = "default_target_lang";
+    public static final String KEY_APP_LANGUAGE = "app_language";
 
     private SwitchMaterial switchAutoTts;
     private SwitchMaterial switchSaveHistory;
     private android.widget.LinearLayout containerDefaultSource;
     private android.widget.LinearLayout containerDefaultTarget;
+    private android.widget.LinearLayout containerAppLanguage;
     private android.widget.TextView tvDefaultSource;
     private android.widget.TextView tvDefaultTarget;
+    private android.widget.TextView tvAppLanguage;
     private ImageView btnBack;
 
     private String userId;
@@ -45,8 +48,10 @@ public class SettingsActivity extends BaseActivity {
         switchSaveHistory = findViewById(R.id.switchSaveHistory);
         containerDefaultSource = findViewById(R.id.containerDefaultSource);
         containerDefaultTarget = findViewById(R.id.containerDefaultTarget);
+        containerAppLanguage = findViewById(R.id.containerAppLanguage);
         tvDefaultSource = findViewById(R.id.tvDefaultSource);
         tvDefaultTarget = findViewById(R.id.tvDefaultTarget);
+        tvAppLanguage = findViewById(R.id.tvAppLanguage);
         btnBack = findViewById(R.id.btnBack);
     }
 
@@ -60,11 +65,13 @@ public class SettingsActivity extends BaseActivity {
         boolean saveHistory = prefs.getBoolean(KEY_SAVE_HISTORY, true);
         String sourceLang = prefs.getString(KEY_DEFAULT_SOURCE_LANG, "es");
         String targetLang = prefs.getString(KEY_DEFAULT_TARGET_LANG, "en");
+        String appLanguage = prefs.getString(KEY_APP_LANGUAGE, "es");
 
         switchAutoTts.setChecked(autoTts);
         switchSaveHistory.setChecked(saveHistory);
-        tvDefaultSource.setText(com.example.snap.utils.LanguageHelper.getLanguageName(sourceLang));
-        tvDefaultTarget.setText(com.example.snap.utils.LanguageHelper.getLanguageName(targetLang));
+        tvDefaultSource.setText(com.example.snap.utils.LanguageHelper.getLanguageName(this, sourceLang));
+        tvDefaultTarget.setText(com.example.snap.utils.LanguageHelper.getLanguageName(this, targetLang));
+        tvAppLanguage.setText(getAppLanguageName(appLanguage));
     }
 
     private void setupListeners() {
@@ -80,15 +87,23 @@ public class SettingsActivity extends BaseActivity {
 
         containerDefaultSource.setOnClickListener(v -> showLanguageDialog(true));
         containerDefaultTarget.setOnClickListener(v -> showLanguageDialog(false));
+        containerAppLanguage.setOnClickListener(v -> showAppLanguageDialog());
 
-        btnBack.setOnClickListener(v -> finish());
+        btnBack.setOnClickListener(v -> {
+            // Volver a la pantalla anterior y recargarla
+            android.content.Intent intent = new android.content.Intent(this, StatisticsActivity.class);
+            intent.putExtra("USER_ID", userId);
+            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        });
     }
 
     private void showLanguageDialog(boolean isSource) {
-        String[] languages = com.example.snap.utils.LanguageHelper.getAvailableLanguages();
+        String[] languages = com.example.snap.utils.LanguageHelper.getAvailableLanguages(this);
 
         new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle(isSource ? "Seleccionar Idioma Origen" : "Seleccionar Idioma Destino")
+                .setTitle(isSource ? R.string.seleccionar_idioma_origen : R.string.seleccionar_idioma_destino)
                 .setItems(languages, (dialog, which) -> {
                     String code = com.example.snap.utils.LanguageHelper.getLanguageCode(which);
                     SharedPreferences prefs = getSharedPreferences(getPrefsName(), MODE_PRIVATE);
@@ -102,5 +117,46 @@ public class SettingsActivity extends BaseActivity {
                     }
                 })
                 .show();
+    }
+
+    private void showAppLanguageDialog() {
+        String[] appLanguages = getResources().getStringArray(R.array.app_languages);
+        String[] languageCodes = {"es", "en", "de", "fr", "it", "pt", "ja", "ko", "zh"};
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(R.string.seleccionar_idioma_app)
+                .setItems(appLanguages, (dialog, which) -> {
+                    String selectedCode = languageCodes[which];
+                    
+                    // Guardar idioma en las preferencias del usuario
+                    SharedPreferences prefs = getSharedPreferences(getPrefsName(), MODE_PRIVATE);
+                    prefs.edit().putString(KEY_APP_LANGUAGE, selectedCode).apply();
+                    
+                    // Asegurar que session_prefs tenga el userId correcto
+                    SharedPreferences sessionPrefs = getSharedPreferences("session_prefs", MODE_PRIVATE);
+                    sessionPrefs.edit().putString("active_user", userId).apply();
+                    
+                    // Log para verificar
+                    android.util.Log.d("SettingsActivity", "Saved language: " + selectedCode + " for user: " + userId);
+                    
+                    // Actualizar la UI inmediatamente
+                    tvAppLanguage.setText(appLanguages[which]);
+                    
+                    // Recrear la actividad para aplicar el nuevo idioma
+                    recreate();
+                })
+                .show();
+    }
+
+    private String getAppLanguageName(String code) {
+        String[] appLanguages = getResources().getStringArray(R.array.app_languages);
+        String[] languageCodes = {"es", "en", "de", "fr", "it", "pt", "ja", "ko", "zh"};
+        
+        for (int i = 0; i < languageCodes.length; i++) {
+            if (languageCodes[i].equals(code)) {
+                return appLanguages[i];
+            }
+        }
+        return appLanguages[0]; // Default: primer idioma
     }
 }

@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- BASE THEME -->
-    <style name="Base.Theme.Practica" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Base.Theme.Practica" parent="Theme.MaterialComponents.Light.NoActionBar">
 
         <!-- Primary colors -->
         <item name="colorPrimary">@color/purple_500</item>
