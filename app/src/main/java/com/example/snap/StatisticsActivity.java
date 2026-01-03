@@ -162,7 +162,7 @@ public class StatisticsActivity extends BaseActivity {
                 displayFavoriteLanguages(historyList);
             } else {
                 historyAdapter.updateData(new ArrayList<>());
-                tvFavoriteLangs.setText("Aún no tienes traducciones");
+                tvFavoriteLangs.setText(R.string.sin_traducciones);
             }
         });
 
@@ -201,10 +201,10 @@ public class StatisticsActivity extends BaseActivity {
             }
 
             tvFavoriteLangs.setText(sb.toString().isEmpty()
-                    ? "Aún no tienes traducciones"
+                    ? getString(R.string.sin_traducciones)
                     : sb.toString().trim());
         } else {
-            tvFavoriteLangs.setText("Aún no tienes traducciones");
+            tvFavoriteLangs.setText(R.string.sin_traducciones);
         }
     }
 
@@ -221,23 +221,27 @@ public class StatisticsActivity extends BaseActivity {
 
         // Capturar el historial actual antes de mostrar el diálogo
         final List<TranslationHistory> currentHistory = new ArrayList<>();
+        final boolean[] dialogShown = {false}; // Flag para evitar mostrar el diálogo dos veces
 
-        // Usar observeForever para capturar los datos una sola vez
-        androidx.lifecycle.Observer<List<TranslationHistory>> observer = new androidx.lifecycle.Observer<List<TranslationHistory>>() {
+        // Usar observe con lifecycle para evitar problemas
+        viewModel.getHistoryByUserId(userId).observe(this, new androidx.lifecycle.Observer<List<TranslationHistory>>() {
             @Override
             public void onChanged(List<TranslationHistory> historyList) {
-                if (historyList != null) {
-                    currentHistory.addAll(historyList);
+                if (!dialogShown[0]) {
+                    dialogShown[0] = true;
+                    
+                    if (historyList != null) {
+                        currentHistory.addAll(historyList);
+                    }
+                    
+                    // Remover el observer inmediatamente
+                    viewModel.getHistoryByUserId(userId).removeObserver(this);
+                    
+                    // Mostrar el diálogo después de capturar los datos
+                    showClearHistoryDialogWithData(userId, currentHistory);
                 }
-                // Remover el observer inmediatamente después de capturar los datos
-                viewModel.getHistoryByUserId(userId).removeObserver(this);
-
-                // Mostrar el diálogo después de capturar los datos
-                showClearHistoryDialogWithData(userId, currentHistory);
             }
-        };
-
-        viewModel.getHistoryByUserId(userId).observeForever(observer);
+        });
     }
 
     private void showClearHistoryDialogWithData(String userId, List<TranslationHistory> currentHistory) {
@@ -270,23 +274,27 @@ public class StatisticsActivity extends BaseActivity {
 
         // Capturar los favoritos actuales antes de mostrar el diálogo
         final List<Favorite> currentFavorites = new ArrayList<>();
+        final boolean[] dialogShown = {false}; // Flag para evitar mostrar el diálogo dos veces
 
-        // Usar observeForever para capturar los datos una sola vez
-        androidx.lifecycle.Observer<List<Favorite>> observer = new androidx.lifecycle.Observer<List<Favorite>>() {
+        // Usar observe con lifecycle para evitar problemas
+        viewModel.getFavoritesByUser(userId).observe(this, new androidx.lifecycle.Observer<List<Favorite>>() {
             @Override
             public void onChanged(List<Favorite> favorites) {
-                if (favorites != null) {
-                    currentFavorites.addAll(favorites);
+                if (!dialogShown[0]) {
+                    dialogShown[0] = true;
+                    
+                    if (favorites != null) {
+                        currentFavorites.addAll(favorites);
+                    }
+                    
+                    // Remover el observer inmediatamente
+                    viewModel.getFavoritesByUser(userId).removeObserver(this);
+                    
+                    // Mostrar el diálogo después de capturar los datos
+                    showClearFavoritesDialogWithData(userId, currentFavorites);
                 }
-                // Remover el observer inmediatamente después de capturar los datos
-                viewModel.getFavoritesByUser(userId).removeObserver(this);
-
-                // Mostrar el diálogo después de capturar los datos
-                showClearFavoritesDialogWithData(userId, currentFavorites);
             }
-        };
-
-        viewModel.getFavoritesByUser(userId).observeForever(observer);
+        });
     }
 
     private void showClearFavoritesDialogWithData(String userId, List<Favorite> currentFavorites) {

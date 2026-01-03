@@ -64,6 +64,7 @@
     <string name="desliza">Glisser ↕</string>
     <string name="idiomas_mas_usados">Vos langues les plus utilisées</string>
     <string name="cargando_idiomas">Chargement des langues...</string>
+    <string name="sin_traducciones">Vous n\'avez pas encore de traductions</string>
     <string name="expresiones_guardadas">Expressions enregistrées</string>
     
     <!-- Login Activity -->

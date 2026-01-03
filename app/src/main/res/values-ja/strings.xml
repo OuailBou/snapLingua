@@ -64,6 +64,7 @@
     <string name="desliza">スワイプ ↕</string>
     <string name="idiomas_mas_usados">よく使う言語</string>
     <string name="cargando_idiomas">言語を読み込み中...</string>
+    <string name="sin_traducciones">まだ翻訳がありません</string>
     <string name="expresiones_guardadas">保存された表現</string>
     
     <!-- Login Activity -->

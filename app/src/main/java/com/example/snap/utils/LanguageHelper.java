@@ -23,6 +23,9 @@ public class LanguageHelper {
         POSITION_TO_CODE.put(3, "de");
         POSITION_TO_CODE.put(4, "it");
         POSITION_TO_CODE.put(5, "pt");
+        POSITION_TO_CODE.put(6, "zh");
+        POSITION_TO_CODE.put(7, "ja");
+        POSITION_TO_CODE.put(8, "ko");
 
         CODE_TO_POSITION.put("es", 0);
         CODE_TO_POSITION.put("en", 1);
@@ -30,6 +33,9 @@ public class LanguageHelper {
         CODE_TO_POSITION.put("de", 3);
         CODE_TO_POSITION.put("it", 4);
         CODE_TO_POSITION.put("pt", 5);
+        CODE_TO_POSITION.put("zh", 6);
+        CODE_TO_POSITION.put("ja", 7);
+        CODE_TO_POSITION.put("ko", 8);
 
         // Frases rápidas por idioma
         QUICK_PHRASES.put("es", new String[] { "Hola", "¿Cómo estás?", "Gracias" });
@@ -38,6 +44,9 @@ public class LanguageHelper {
         QUICK_PHRASES.put("de", new String[] { "Hallo", "Wie geht es dir?", "Danke" });
         QUICK_PHRASES.put("it", new String[] { "Ciao", "Come stai?", "Grazie" });
         QUICK_PHRASES.put("pt", new String[] { "Olá", "Como você está?", "Obrigado" });
+        QUICK_PHRASES.put("zh", new String[] { "你好", "你好吗？", "谢谢" });
+        QUICK_PHRASES.put("ja", new String[] { "こんにちは", "お元気ですか？", "ありがとう" });
+        QUICK_PHRASES.put("ko", new String[] { "안녕하세요", "어떻게 지내세요?", "감사합니다" });
     }
 
     /**
@@ -109,6 +118,8 @@ public class LanguageHelper {
                 return "zh-CN";
             case "ja":
                 return "ja-JP";
+            case "ko":
+                return "ko-KR";
             default:
                 return "en-US";
         }

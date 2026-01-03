@@ -62,8 +62,7 @@
     <string name="borrar_todo">Borrar todo</string>
     <string name="desliza">Desliza ↕</string>
     <string name="idiomas_mas_usados">Tus Idiomas más usados</string>
-    <string name="cargando_idiomas">Cargando idiomas...</string>
-    <string name="expresiones_guardadas">Expresiones Guardadas</string>
+    <string name="cargando_idiomas">Cargando idiomas...</string>    <string name="sin_traducciones">Aún no tienes traducciones</string>    <string name="expresiones_guardadas">Expresiones Guardadas</string>
     
     <!-- Login Activity -->
     <string name="iniciar_sesion">Iniciar Sesión</string>

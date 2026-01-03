@@ -64,6 +64,7 @@
     <string name="desliza">Deslizar ↕</string>
     <string name="idiomas_mas_usados">Seus idiomas mais usados</string>
     <string name="cargando_idiomas">Carregando idiomas...</string>
+    <string name="sin_traducciones">Você ainda não tem traduções</string>
     <string name="expresiones_guardadas">Expressões salvas</string>
     
     <!-- Login Activity -->
