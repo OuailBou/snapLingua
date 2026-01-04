@@ -64,6 +64,7 @@
     <string name="desliza">스와이프 ↕</string>
     <string name="idiomas_mas_usados">가장 많이 사용한 언어</string>
     <string name="cargando_idiomas">언어를 불러오는 중...</string>
+    <string name="sin_traducciones">아직 번역이 없습니다</string>
     <string name="expresiones_guardadas">저장된 표현</string>
     
     <!-- Login Activity -->
