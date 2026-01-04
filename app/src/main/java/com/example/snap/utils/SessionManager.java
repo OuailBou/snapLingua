@@ -27,7 +27,12 @@ public class SessionManager {
      */
     public void saveSession(String email) {
         prefs.edit().putString(KEY_ACTIVE_EMAIL, email).apply();
-        Log.d(TAG, "Sesión guardada: " + email);
+        
+        // También actualizar session_prefs para sincronizar el idioma por usuario
+        SharedPreferences sessionPrefs = context.getSharedPreferences("session_prefs", Context.MODE_PRIVATE);
+        sessionPrefs.edit().putString("active_user", email).apply();
+        
+        Log.d(TAG, "Sesión guardada: " + email + " (sincronizada en session_prefs)");
     }
     
     /**
@@ -50,7 +55,12 @@ public class SessionManager {
      */
     public void logout() {
         prefs.edit().remove(KEY_ACTIVE_EMAIL).apply();
-        Log.d(TAG, "Sesión cerrada");
+        
+        // También restaurar session_prefs a guest para que use el idioma por defecto
+        SharedPreferences sessionPrefs = context.getSharedPreferences("session_prefs", Context.MODE_PRIVATE);
+        sessionPrefs.edit().putString("active_user", "guest").apply();
+        
+        Log.d(TAG, "Sesión cerrada (restaurado a guest en session_prefs)");
     }
     
     /**
